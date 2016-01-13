@@ -1,0 +1,62 @@
+#!/usr/bin/env racket
+
+#lang racket/base
+
+(require racket/cmdline
+         racket/list
+	 racket/match
+	 "alonzo.rkt")
+
+(define current-expr "")
+
+(define command (make-parameter 'e))
+
+(define settings
+  (command-line
+    #:program "alonzo - a tool for working with λ-calculus expressions."
+    #:once-any
+    [("-v" "--verbose")
+     "Evaluate an expression, showing all steps."
+     (command 'v)]
+    [("-f" "--free")
+     "Identify free variables in an expression."
+     (command 'f)]
+    [("-b" "--bound")
+     "Identify bound variables in an expression."
+     (command 'b)]
+    [("-c" "--check")
+     "Syntax check an expression."
+     (command 'c)]
+    #:args (expr) (set! current-expr expr)))
+
+
+(define (print-expr expr)
+  (match expr
+    [(name v _) (printf "~a" v)]
+    [(function n b _) (printf "λ-a.~a" (print-expr n) (print-expr b))]
+    [(application f a _) (printf "(~a ~a)" (print-expr f) (print-expr a))]))
+
+
+;; Perform action based on cmdline args
+(cond [(or (eq? (command) 'e)
+           (eq? (command) 'v))
+       (begin (print-expr (eval current-expr))
+              (printf "~n"))]
+      [(eq? (command) 'f)
+       (let ([free-vars (free current-expr)])
+         (if (empty? free-vars)
+             (printf "There are no free variables in this expression.~n")
+             (printf (highlight-expr current-expr (map (λ (expr)
+                                                         (name-highlight expr))
+                                                       free-vars)))))]
+      [(eq? (command) 'b)
+       (let ([bound-vars (bound current-expr)])
+         (if (empty? bound-vars)
+             (printf "There are no bound variables in this expression.~n")
+             (printf (highlight-expr current-expr (map (λ (expr)
+                                                         (name-highlight expr))
+                                                       bound-vars)))))]
+      [(eq? (command) 'c)
+       (unless (void? (parse-λ-expr current-expr))
+         (printf "OK.~n"))])
+
