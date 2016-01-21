@@ -3,6 +3,8 @@ Alonzo
 
 A simple CLI for working with [lambda calculus][1] expressions.
 
+Required Racket to be installed on your system to run. Tested with [Racket 6.3][3].
+
 ## Examples
 
 ```bash
@@ -58,4 +60,4 @@ Free variables in the top-level expression will be left as-is. For example, the 
 
 [1]: https://en.wikipedia.org/wiki/Lambda_calculus
 [2]: http://www.amazon.com/Introduction-Functional-Programming-Calculus-Mathematics/dp/0486478831
-
+[3]: https://download.racket-lang.org/racket-v6.3.html
